@@ -11,6 +11,7 @@ public class CliParser {
     private double speed = 0.8; // m/s
     private String outputFile = "data.xyz";
     private String statsFile = "stats.txt";
+    private double exitPosition = 30.0;
 
     private static Options createOptions(){
         Options options = new Options();
@@ -20,6 +21,7 @@ public class CliParser {
         options.addOption("fps", "fps", true, "Time step for the animation.");
         options.addOption("of", "outputFile", true, "Output file for animations.");
         options.addOption("sf", "statFile", true, "Output file for stats.");
+        options.addOption("ep", "exitPosition", true, "Exit position.");
 
         return options;
     }
@@ -55,12 +57,16 @@ public class CliParser {
                 outputFile = cmd.getOptionValue("of");
             }
 
+            if (cmd.hasOption("ep")) {
+                exitPosition = Double.parseDouble(cmd.getOptionValue("ep"));
+            }
+
         }catch (Exception e){
             System.out.println("Argument not recognized.");
             help(options);
         }
 
-        return new Configuration(fps, pedestrians, speed, statsFile, outputFile);
+        return new Configuration(fps, pedestrians, speed, statsFile, outputFile, exitPosition);
     }
 
     private void help(Options options){

@@ -7,13 +7,15 @@ public class Configuration {
     protected double desiredSpeed;
     protected String statsFile;
     protected String outputFile;
+    protected double exitPosition;
 
-    public Configuration(double fps, int pedestrians, double desiredSpeed, String statsFile, String outputFile) {
+    public Configuration(double fps, int pedestrians, double desiredSpeed, String statsFile, String outputFile, Double exitPosition) {
         this.fps = fps;
         this.pedestrians = pedestrians;
         this.desiredSpeed = desiredSpeed;
         this.statsFile = statsFile;
         this.outputFile = outputFile;
+        this.exitPosition = exitPosition;
     }
 
     public double getFps() {

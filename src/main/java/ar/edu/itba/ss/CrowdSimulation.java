@@ -1,5 +1,7 @@
 package ar.edu.itba.ss;
 
+import javafx.beans.property.ReadOnlyMapProperty;
+
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,16 +19,17 @@ public class CrowdSimulation {
     private final static double SOCIAL_DISTANCE = 0.08; // Metres
     private final static double ROOM_LENGTH = 100;
     private final static double DOOR_LENGTH = 12;
-    private final static double WALL_Y = 2;
+    private final static double WALL_Y = 0;
     private final static double DRIVING_TIME = 1;
     private static double desiredSpeed = 0.8;
     private final static double CELL_INDEX_RADIUS = 0.6;
     private static CellIndexMethod cellIndexMethod;
     private static PrintWriter statsPrinter;
+    private static double exitPosition;
 
     public static void main(String args[]) {
         Configuration config = new CliParser().parseOptions(args);
-
+        exitPosition = config.exitPosition;
         try {
             System.setOut(new PrintStream(new FileOutputStream(config.getOutputFile())));
         } catch (FileNotFoundException e) {
@@ -57,7 +60,7 @@ public class CrowdSimulation {
             double y;
 
             do {
-                x = randomCoord(radius, 0);
+                x = randomCoord(radius, 1);
                 y = randomCoord(radius, WALL_Y);
             }
             while (!validCords(x,y, radius, cellIndexMethod.pedestrians));
@@ -75,7 +78,7 @@ public class CrowdSimulation {
      * @return a coordinate in the (radius, L - radius) interval.
      */
     private static double randomCoord(double radius, double min){
-        return  min + radius + (ROOM_LENGTH - 2 * radius) * Math.random();
+        return  min + radius + (ROOM_LENGTH - 2 * radius - 1) * Math.random();
     }
 
     /**
@@ -131,12 +134,15 @@ public class CrowdSimulation {
 
         double[] force = new double[2];
 
-        if (contactWithWall(p)) {
-            force = wallForce(p);
-        }
+//        if (contactWithWall(p)) {
+        force = wallForce(p, force, 0);
+        force = wallForce(p, force, ROOM_LENGTH);
+//        }
 
-        force = lateralCollision(p, force, 0);
-        force = lateralCollision(p, force, ROOM_LENGTH);
+        if (!isInTheExit(p)){
+            force = lateralCollision(p, force, 0);
+            force = lateralCollision(p, force, ROOM_LENGTH);
+        }
 
         for (Pedestrian neighbour : p.neighbors) {
 
@@ -183,21 +189,23 @@ public class CrowdSimulation {
 
     private static double[] getTarget(Pedestrian p) {
         double target[];
-        double doorX = ROOM_LENGTH/2 - DOOR_LENGTH/2;
 
-        target = new double[]{(p.position[0]/ROOM_LENGTH) * DOOR_LENGTH + doorX, -1};
+        if (p.position[0] < ROOM_LENGTH/2){
+            target = new double[]{-1, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
+        }else{
+            target = new double[]{ROOM_LENGTH + 1, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
+        }
 
         return target;
     }
 
-    private static double[] wallForce(Pedestrian p) {
-        double force[] = new double[2];
-        double superposition = p.radius - (Math.abs(p.position[1] - WALL_Y));
+    private static double[] wallForce(Pedestrian p, double[] force, double wallPosition) {
+        double superposition = p.radius - (Math.abs(p.position[1] - wallPosition));
 
         if (superposition > 0) {
 
             double dx = 0;
-            double dy = -Math.abs(p.position[1] - WALL_Y);
+            double dy = -Math.abs(p.position[1] - wallPosition);
 
             double mod = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
             double ex = (dx / mod);
@@ -217,7 +225,7 @@ public class CrowdSimulation {
 
         if (p.position[0] + p.radius < ROOM_LENGTH/2 - DOOR_LENGTH/2 &&
                 p.position[0] - p.radius > ROOM_LENGTH/2 + DOOR_LENGTH/2){
-            force[1] += -SOCIAL_FORCE * Math.exp(-(Math.abs(p.position[1] - WALL_Y) - p.radius) / SOCIAL_DISTANCE);
+            force[1] += -SOCIAL_FORCE * Math.exp(-(Math.abs(p.position[1] - wallPosition) - p.radius) / SOCIAL_DISTANCE);
         }
         return force;
     }
@@ -249,10 +257,11 @@ public class CrowdSimulation {
         return force;
     }
 
-    private static boolean contactWithWall(Pedestrian p) {
-        return p.position[1] > WALL_Y && p.position[1] < (p.radius + WALL_Y) &&
-                (p.position[0] < (p.radius + ROOM_LENGTH/2 - DOOR_LENGTH/2) ||
-                        p.position[0] > (ROOM_LENGTH/2 + DOOR_LENGTH/2 - p.radius));
+    private static boolean isInTheExit(Pedestrian p) {
+        return p.position[1] > (p.radius + exitPosition - DOOR_LENGTH/2) && p.position[1] < (exitPosition + DOOR_LENGTH/2 - p.radius);
+//        return p.position[1] > WALL_Y && p.position[1] < (p.radius + WALL_Y) &&
+//                (p.position[0] < (p.radius + ROOM_LENGTH/2 - DOOR_LENGTH/2) ||
+//                        p.position[0] > (ROOM_LENGTH/2 + DOOR_LENGTH/2 - p.radius));
     }
 
     private static void printParticles(int iteration){
