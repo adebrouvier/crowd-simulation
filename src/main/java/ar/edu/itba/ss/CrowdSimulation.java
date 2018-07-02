@@ -15,10 +15,10 @@ public class CrowdSimulation {
     private final static double MASS = 80;
     private final static double SOCIAL_FORCE = 2000; // Newton
     private final static double SOCIAL_DISTANCE = 0.08; // Metres
-    private final static double ROOM_LENGTH = 20;
-    private final static double DOOR_LENGTH = 1.2;
+    private final static double ROOM_LENGTH = 100;
+    private final static double DOOR_LENGTH = 12;
     private final static double WALL_Y = 2;
-    private final static double DRIVING_TIME = 0.5;
+    private final static double DRIVING_TIME = 1;
     private static double desiredSpeed = 0.8;
     private final static double CELL_INDEX_RADIUS = 0.6;
     private static CellIndexMethod cellIndexMethod;
@@ -63,8 +63,8 @@ public class CrowdSimulation {
             while (!validCords(x,y, radius, cellIndexMethod.pedestrians));
             cellIndexMethod.putParticle(new Pedestrian(i+1, new double[]{x, y}, radius, MASS));
         }
-        cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 1, new double[]{ROOM_LENGTH/2 - DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
-        cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 2, new double[]{ROOM_LENGTH/2 + DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
+        //cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 1, new double[]{ROOM_LENGTH/2 - DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
+        //cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 2, new double[]{ROOM_LENGTH/2 + DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
 
     }
 
@@ -185,13 +185,7 @@ public class CrowdSimulation {
         double target[];
         double doorX = ROOM_LENGTH/2 - DOOR_LENGTH/2;
 
-        if (p.position[0] < doorX && p.position[1] > WALL_Y){
-            target = new double[]{doorX + p.radius, WALL_Y};
-        }else if(p.position[0] > doorX + DOOR_LENGTH && p.position[1] > WALL_Y){
-            target = new double[]{doorX + DOOR_LENGTH - p.radius, WALL_Y};
-        }else{
-            target = new double[]{ROOM_LENGTH/2, -1};
-        }
+        target = new double[]{(p.position[0]/ROOM_LENGTH) * DOOR_LENGTH + doorX, -1};
 
         return target;
     }
