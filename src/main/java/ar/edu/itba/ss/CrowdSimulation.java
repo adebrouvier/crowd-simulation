@@ -1,7 +1,5 @@
 package ar.edu.itba.ss;
 
-import javafx.beans.property.ReadOnlyMapProperty;
-
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,10 +132,8 @@ public class CrowdSimulation {
 
         double[] force = new double[2];
 
-//        if (contactWithWall(p)) {
-        force = wallForce(p, force, 0);
-        force = wallForce(p, force, ROOM_LENGTH);
-//        }
+        force = horizontalWallForce(p, force, 0);
+        force = horizontalWallForce(p, force, ROOM_LENGTH);
 
         if (!isInTheExit(p)){
             force = lateralCollision(p, force, 0);
@@ -199,13 +195,13 @@ public class CrowdSimulation {
         return target;
     }
 
-    private static double[] wallForce(Pedestrian p, double[] force, double wallPosition) {
+    private static double[] horizontalWallForce(Pedestrian p, double[] force, double wallPosition) {
         double superposition = p.radius - (Math.abs(p.position[1] - wallPosition));
 
         if (superposition > 0) {
 
             double dx = 0;
-            double dy = -Math.abs(p.position[1] - wallPosition);
+            double dy = wallPosition - p.position[1];
 
             double mod = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
             double ex = (dx / mod);
@@ -258,17 +254,19 @@ public class CrowdSimulation {
     }
 
     private static boolean isInTheExit(Pedestrian p) {
-        return p.position[1] > (p.radius + exitPosition - DOOR_LENGTH/2) && p.position[1] < (exitPosition + DOOR_LENGTH/2 - p.radius);
-//        return p.position[1] > WALL_Y && p.position[1] < (p.radius + WALL_Y) &&
-//                (p.position[0] < (p.radius + ROOM_LENGTH/2 - DOOR_LENGTH/2) ||
-//                        p.position[0] > (ROOM_LENGTH/2 + DOOR_LENGTH/2 - p.radius));
+        return p.position[1] > (p.radius + exitPosition) && p.position[1] < (exitPosition + DOOR_LENGTH - p.radius);
     }
 
     private static void printParticles(int iteration){
-        System.out.println(cellIndexMethod.pedestrians.size());
+        System.out.println(cellIndexMethod.pedestrians.size() + 4);
         System.out.println(iteration);
         for (Pedestrian p: cellIndexMethod.pedestrians)
             System.out.println(p.position[0] + "\t" + p.position[1] + "\t" + p.radius + "\t" + p.getSpeedModule());
+        /* Print exits */
+        System.out.println(0 + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
+        System.out.println(0 + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
+        System.out.println(ROOM_LENGTH + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
+        System.out.println(ROOM_LENGTH + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
     }
 
     private static void updateCells(double time){
