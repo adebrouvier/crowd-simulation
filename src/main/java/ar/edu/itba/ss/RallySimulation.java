@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class CrowdSimulation {
+public class RallySimulation {
 
     private final static double MINIMUM_RADIUS = 0.25;
     private final static double MAXIMUM_RADIUS = 0.29;

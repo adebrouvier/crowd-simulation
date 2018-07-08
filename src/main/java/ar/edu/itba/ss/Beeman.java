@@ -61,7 +61,7 @@ public class Beeman implements Integrator{
     }
 
     private double[] getAcceleration(Pedestrian p){
-        double[] newForce = CrowdSimulation.forces(p);
+        double[] newForce = RallySimulation.forces(p);
         newForce[0] = newForce[0] / p.mass;
         newForce[1] = newForce[1] / p.mass;
         return newForce;

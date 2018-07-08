@@ -1,5 +1,5 @@
-# crowd-simulation
-Crowd simulation with Social Force Model.
+# rally-simulation
+Rally simulation with Social Force Model.
 
 ## Compilation
 ```
@@ -9,9 +9,10 @@ mvn package
 ## Execution
 
 ```
-time java -jar target/crowd-simulation-1.0-SNAPSHOT-jar-with-dependencies.jar 
+java -jar target/rally-simulation-1.0-SNAPSHOT-jar-with-dependencies.jar 
 ```
 Parameters:
+ * **-ep, --exitPosition &lt;arg>**: Position of the exit.
  * **-fps, --fps &lt;arg>**: Time step for the animation.
  * **-h, --help**: Shows this screen.
  * **-s, --desiredSpeed &lt;arg>**: Desired speed of pedestrians.
