@@ -20,10 +20,11 @@ public class CrowdSimulation {
     private final static double WALL_Y = 0;
     private final static double DRIVING_TIME = 1;
     private static double desiredSpeed = 0.8;
-    private final static double CELL_INDEX_RADIUS = 0.6;
+    private final static double CELL_INDEX_RADIUS = 0.8;
     private static CellIndexMethod cellIndexMethod;
     private static PrintWriter statsPrinter;
     private static double exitPosition;
+    private final static double WALL_POSITION = 4.0;
 
     public static void main(String args[]) {
         Configuration config = new CliParser().parseOptions(args);
@@ -58,8 +59,8 @@ public class CrowdSimulation {
             double y;
 
             do {
-                x = randomCoord(radius, 1);
-                y = randomCoord(radius, WALL_Y);
+                x = randomCoord(radius, WALL_POSITION + 1,ROOM_LENGTH - WALL_POSITION);
+                y = randomCoord(radius, 1,ROOM_LENGTH - 1);
             }
             while (!validCords(x,y, radius, cellIndexMethod.pedestrians));
             cellIndexMethod.putParticle(new Pedestrian(i+1, new double[]{x, y}, radius, MASS));
@@ -75,8 +76,8 @@ public class CrowdSimulation {
      * @param min min coordinate
      * @return a coordinate in the (radius, L - radius) interval.
      */
-    private static double randomCoord(double radius, double min){
-        return  min + radius + (ROOM_LENGTH - 2 * radius - 1) * Math.random();
+    private static double randomCoord(double radius, double min, double max){
+        return  min + radius + ((max-min) - 2 * radius) * Math.random();
     }
 
     /**
@@ -136,8 +137,8 @@ public class CrowdSimulation {
         force = horizontalWallForce(p, force, ROOM_LENGTH);
 
         if (!isInTheExit(p)){
-            force = lateralCollision(p, force, 0);
-            force = lateralCollision(p, force, ROOM_LENGTH);
+            force = lateralCollision(p, force, WALL_POSITION);
+            force = lateralCollision(p, force, ROOM_LENGTH - WALL_POSITION);
         }
 
         for (Pedestrian neighbour : p.neighbors) {
@@ -187,9 +188,9 @@ public class CrowdSimulation {
         double target[];
 
         if (p.position[0] < ROOM_LENGTH/2){
-            target = new double[]{-1, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
+            target = new double[]{-10, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
         }else{
-            target = new double[]{ROOM_LENGTH + 1, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
+            target = new double[]{ROOM_LENGTH + 10, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
         }
 
         return target;
@@ -263,10 +264,10 @@ public class CrowdSimulation {
         for (Pedestrian p: cellIndexMethod.pedestrians)
             System.out.println(p.position[0] + "\t" + p.position[1] + "\t" + p.radius + "\t" + p.getSpeedModule());
         /* Print exits */
-        System.out.println(0 + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
-        System.out.println(0 + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
-        System.out.println(ROOM_LENGTH + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
-        System.out.println(ROOM_LENGTH + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
+        System.out.println(WALL_POSITION + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
+        System.out.println(WALL_POSITION + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
+        System.out.println((ROOM_LENGTH - WALL_POSITION) + "\t" + exitPosition + "\t" + 0 + "\t" + 0);
+        System.out.println((ROOM_LENGTH - WALL_POSITION) + "\t" + (exitPosition + DOOR_LENGTH) + "\t" + 0 + "\t" + 0);
     }
 
     private static void updateCells(double time){
