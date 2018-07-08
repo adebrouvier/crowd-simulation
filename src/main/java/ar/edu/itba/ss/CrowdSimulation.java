@@ -59,7 +59,7 @@ public class CrowdSimulation {
             double y;
 
             do {
-                x = randomCoord(radius, WALL_POSITION + 1,ROOM_LENGTH - WALL_POSITION);
+                x = randomCoord(radius, WALL_POSITION * 2,ROOM_LENGTH - WALL_POSITION * 2);
                 y = randomCoord(radius, 1,ROOM_LENGTH - 1);
             }
             while (!validCords(x,y, radius, cellIndexMethod.pedestrians));
@@ -187,12 +187,26 @@ public class CrowdSimulation {
     private static double[] getTarget(Pedestrian p) {
         double target[];
 
-        if (p.position[0] < ROOM_LENGTH/2){
-            target = new double[]{-10, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
-        }else{
-            target = new double[]{ROOM_LENGTH + 10, (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition};
-        }
+        double x,y;
+        y = (p.position[1] / ROOM_LENGTH) * DOOR_LENGTH + exitPosition;
+        double targetDomain = ROOM_LENGTH / 4 - 10;
 
+        if (p.position[0] < ROOM_LENGTH/2){
+            if (!isInTheExit(p)){
+                x = WALL_POSITION + 1;
+            }else{
+                x = (p.position[0] / ROOM_LENGTH / 2) * targetDomain;
+                x -= 10;
+            }
+        }else{
+            if (!isInTheExit(p)){
+                x = ROOM_LENGTH - WALL_POSITION - 1;
+            }else{
+                x = ((p.position[0] - ROOM_LENGTH) / ROOM_LENGTH / 2) * targetDomain;
+                x += ROOM_LENGTH + 10;
+            }
+        }
+        target = new double[]{x,y};
         return target;
     }
 
