@@ -71,7 +71,7 @@ public class CliParser {
 
     private void help(Options options){
         HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp("crowd-simulation", options);
+        helpFormatter.printHelp("rally-simulation", options);
         exit(0);
     }
 }

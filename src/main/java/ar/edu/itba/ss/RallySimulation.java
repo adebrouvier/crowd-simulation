@@ -65,8 +65,6 @@ public class RallySimulation {
             while (!validCords(x,y, radius, cellIndexMethod.pedestrians));
             cellIndexMethod.putParticle(new Pedestrian(i+1, new double[]{x, y}, radius, MASS));
         }
-        //cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 1, new double[]{ROOM_LENGTH/2 - DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
-        //cellIndexMethod.putParticle(new Pedestrian(numberOfParticles + 2, new double[]{ROOM_LENGTH/2 + DOOR_LENGTH/2, WALL_Y}, 0, MASS, true));
 
     }
 
@@ -111,7 +109,7 @@ public class RallySimulation {
         Integrator integrator = new Beeman(dt);
         cellIndexMethod.setNeighbors();
 
-        for (double t = 0; cellIndexMethod.pedestrians.size() > 2; t+=dt){
+        for (double t = 0; cellIndexMethod.pedestrians.size() > 0; t+=dt){
 
             integrator.updatePositions(cellIndexMethod.pedestrians);
 
